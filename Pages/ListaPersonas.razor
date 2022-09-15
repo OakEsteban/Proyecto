@@ -1,0 +1,143 @@
+﻿@page "/listapersonas"
+@using MudBlazorTemplates4.Models;
+@inject MudBlazorTemplates4.Service.IPersonaService personaSer;
+
+
+
+<style>
+    .selected {
+        background-color: #689E41 !important;
+    }
+
+        .selected > td {
+            color: white !important;
+        }
+
+            .selected > td .mud-input {
+                color: white !important;
+            }
+</style>
+
+@if(personasT == null){
+        <MudText Typo="Typo.h3" GutterBottom="true">Cargando....</MudText>
+
+}else{
+
+
+
+<PageTitle>Lista de Personas</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Personas</MudText>
+<div>
+                    <MudButton Href= "/registro" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.AddCard" Style="background-color: yellowgreen; color: Grey.Darken4; width: 180px; height: 40px;">
+       Registro
+    </MudButton>
+ </div>
+<MudDivider></MudDivider>
+<MudTable Items="@personasT" Hover="true" Breakpoint="Breakpoint.Sm"  @ref="mudTable" RowClassFunc="@SelectedRowClassFunc"  OnRowClick="RowClickEvent" T="Persona">
+     <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Apellido</MudTh>
+            <MudTh>Telefono</MudTh>
+        <MudTh>Fecha de Nacimiento</MudTh>
+        
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.IdPersona</MudTd>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="Apellido">@context.Apellido</MudTd>
+            <MudTd DataLabel="Telefono">@context.Telefono</MudTd>
+        <MudTd DataLabel="Fecha de Nacimiento">@context.Nacimiento</MudTd>
+            <MudButtonGroup Variant="Variant.Filled">
+                <MudButton @onclick="@(()=>GetPersonas(context.IdPersona))" Color="Color.Info"  EndIcon="@Icons.Material.Filled.FindInPage">Detalles</MudButton>
+                <MudButton @onclick="@(()=>DelPersona(context.IdPersona))" Color="Color.Error"  EndIcon="@Icons.Material.Filled.DeleteForever">Eliminar</MudButton>
+            </MudButtonGroup>
+
+    </RowTemplate>
+    <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+    </PagerContent>
+</MudTable>
+
+}
+
+
+
+
+
+
+@code {
+    
+
+    private Persona[] personas;
+
+    Persona persona = new Persona();
+    List<Persona> personasT = new List<Persona>();
+
+    protected override void OnInitialized()
+    {
+        LoadPersonas();
+    }
+
+    private void LoadPersonas()
+    {
+
+        personasT = new List<Persona>();
+        personasT = personaSer.Gets();
+    }
+
+    private void GetPersonas(int personaId)
+    {
+        persona = personaSer.Get(personaId);
+    }
+
+    private int selectedRowNumber = -1;
+    private MudTable<Persona> mudTable;
+    private List<string> clickedEvents = new();
+    private void DelPersona(int personaId)
+    {
+        string messagge = personaSer.Delete(personaId);
+    }
+
+    private void SavePersona()
+    {
+        if (persona.IdPersona == 0) persona = personaSer.Save(persona);
+        else persona = personaSer.Update(persona);
+        LoadPersonas();
+    }
+
+    private void SetPersonaValue(Persona _persona) => persona = _persona;
+
+
+
+    private void RowClickEvent(TableRowClickEventArgs<Persona> tableRowClickEventArgs)
+    {
+
+        clickedEvents.Add("Row has been clicked");
+
+
+    }
+
+    private string SelectedRowClassFunc(Persona persona, int rowNumber)
+    {
+        if (selectedRowNumber == rowNumber)
+        {
+            selectedRowNumber = -1;
+
+            return string.Empty;
+        }
+        else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(persona))
+        {
+            selectedRowNumber = rowNumber;
+
+            return "selected";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+
+}
+

@@ -1,0 +1,76 @@
+﻿@page "/lista"
+@using MudBlazorTemplates4.Models;
+@inject MudBlazorTemplates4.Service.IPersonaService personaSer;
+
+
+
+<h3>List</h3>
+
+<input type="text" @bind-value="@persona.Nombre" />
+<br />
+<br />
+<input type="text" @bind-value="@persona.Telefono" />
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Numero</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Persona persona in personasT)
+        {
+                    <tr>
+                        <td>@persona.Nombre</td>
+                            <td>@persona.Apellido</td>
+                        <td>@persona.Telefono</td>
+                    </tr>
+        }
+
+    </tbody>
+
+
+</table>
+
+
+
+@code {
+    private Persona[] personas;
+
+    Persona persona = new Persona();
+    List<Persona> personasT = new List<Persona>();
+
+    protected override void OnInitialized()
+    {
+        LoadPersonas();
+    }
+
+    private void LoadPersonas()
+    {
+
+        personasT = new List<Persona>();
+        personasT = personaSer.Gets();
+    }
+
+    private void GetPersonas(int personaId)
+    {
+        persona = personaSer.Get(personaId);
+    }
+
+
+    private void DelPersona(int personaId)
+    {
+        string messagge = personaSer.Delete(personaId);
+    }
+
+    private void SavePersona()
+    {
+        if (persona.IdPersona == 0) persona = personaSer.Save(persona);
+        else persona = personaSer.Update(persona);
+        LoadPersonas();
+    }
+
+    private void SetPersonaValue(Persona _persona) => persona = _persona;
+}

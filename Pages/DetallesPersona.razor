@@ -1,0 +1,78 @@
+﻿@page "/registro"
+@using MudBlazorTemplates4.Models;
+@inject MudBlazorTemplates4.Service.IPersonaService personaSer;
+<MudText>
+	Detalles persona
+</MudText>
+
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="@persona" OnValidSubmit="SavePersona">
+<DataAnnotationsValidator/>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="Nombre" HelperText="Max. 8 characters"
+                              @bind-Value="persona.Nombre" For="@(() => persona.Nombre)"/>
+                <MudTextField Label="Apellido" Class="mt-3"
+                              @bind-Value="persona.Apellido" For="@(() => persona.Apellido)"/>
+                <MudTextField Label="Telefono" Class="mt-3"
+                                @bind-Value="persona.Telefono" For="@(() => persona.Telefono)" />
+                <MudDatePicker Label="Fecha de nacimiento" @bind-Date="persona.Nacimiento"/>
+               
+
+            </MudCardContent>
+            <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrar</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    </MudGrid>
+    </EditForm>
+
+<div>
+    <MudButton Href="/listapersonas" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowBackIos" Style="background-color: orangered; color: white; width: 180px; height: 40px;">
+        Regresar lista
+    </MudButton>
+</div>
+
+
+@code {
+
+    private Persona[] personas;
+
+    Persona persona = new Persona();
+    List<Persona> personasT = new List<Persona>();
+
+    protected override void OnInitialized()
+    {
+        LoadPersonas();
+    }
+
+    private void LoadPersonas()
+    {
+
+        personasT = new List<Persona>();
+        personasT = personaSer.Gets();
+    }
+
+    private void GetPersonas(int personaId)
+    {
+        persona = personaSer.Get(personaId);
+    }
+
+    private void DelPersona(int personaId)
+    {
+        string messagge = personaSer.Delete(personaId);
+    }
+
+    private void SavePersona()
+    {
+        if (persona.IdPersona == 0) persona = personaSer.Save(persona);
+        else persona = personaSer.Update(persona);
+        LoadPersonas();
+    }
+
+
+}
